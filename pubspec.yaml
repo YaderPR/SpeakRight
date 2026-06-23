@@ -50,6 +50,9 @@ dependencies:
   # Text Utilities
   string_similarity: ^2.0.0
 
+  # HTTP / Downloader
+  dio: ^5.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
