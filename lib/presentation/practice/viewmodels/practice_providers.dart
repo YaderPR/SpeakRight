@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speak_right/core/di/injection_container.dart';
 import 'package:speak_right/domain/usecases/evaluate_pronunciation_usecase.dart';
+import 'package:speak_right/domain/repositories/stt_repository.dart';
 import 'package:speak_right/presentation/practice/state/practice_state.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_viewmodel.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_text_notifier.dart';
@@ -15,8 +16,11 @@ final currentPracticeTextProvider = Provider<String>((ref) {
   return textState.currentText;
 });
 
+final freePracticeTextProvider = StateProvider<String>((ref) => '');
+
 final practiceViewModelProvider =
     StateNotifierProvider<PracticeViewModel, PracticeState>((ref) {
   final evaluateUseCase = sl<EvaluatePronunciationUseCase>();
-  return PracticeViewModel(evaluateUseCase);
+  final sttRepository = sl<STTRepository>();
+  return PracticeViewModel(evaluateUseCase, sttRepository);
 });
