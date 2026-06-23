@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:speak_right/l10n/app_localizations.dart';
 import 'package:speak_right/core/di/injection_container.dart' as di;
-import 'package:speak_right/presentation/practice/views/practice_screen.dart';
+import 'package:speak_right/presentation/main/views/main_screen.dart';
 import 'package:speak_right/presentation/settings/viewmodels/preferences_viewmodel.dart';
 
 void main() async {
@@ -41,7 +41,7 @@ class SpeakRightApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const PracticeScreen(),
+      home: const MainScreen(),
     );
   }
 }

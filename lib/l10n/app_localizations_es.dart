@@ -176,4 +176,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get evaluate => 'Evaluar';
+
+  @override
+  String get freePractice => 'Práctica Libre';
+
+  @override
+  String get guidedPractice => 'Práctica Guiada';
+
+  @override
+  String get typePromptOptional => 'Escribe una oración objetivo (Opcional)...';
+
+  @override
+  String get noPromptHint => 'O simplemente habla libremente...';
+
+  @override
+  String get transcription => 'Transcripción';
 }

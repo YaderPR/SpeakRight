@@ -58,5 +58,10 @@
     }
   },
   "errorMessage": "Error",
-  "evaluate": "Evaluar"
+  "evaluate": "Evaluar",
+  "freePractice": "Práctica Libre",
+  "guidedPractice": "Práctica Guiada",
+  "typePromptOptional": "Escribe una oración objetivo (Opcional)...",
+  "noPromptHint": "O simplemente habla libremente...",
+  "transcription": "Transcripción"
 }

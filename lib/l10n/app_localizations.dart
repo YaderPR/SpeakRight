@@ -421,6 +421,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Evaluate'**
   String get evaluate;
+
+  /// No description provided for @freePractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Practice'**
+  String get freePractice;
+
+  /// No description provided for @guidedPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided Practice'**
+  String get guidedPractice;
+
+  /// No description provided for @typePromptOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a target sentence (Optional)...'**
+  String get typePromptOptional;
+
+  /// No description provided for @noPromptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or just speak freely...'**
+  String get noPromptHint;
+
+  /// No description provided for @transcription.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription'**
+  String get transcription;
 }
 
 class _AppLocalizationsDelegate
