@@ -139,12 +139,15 @@ class SpeechModelsScreen extends ConsumerWidget {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                model.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                              Flexible(
+                                child: Text(
+                                  model.name,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               if (model.isStreaming) ...[
