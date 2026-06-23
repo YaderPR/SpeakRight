@@ -1,5 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speak_right/core/services/notification_service.dart';
+import 'package:speak_right/domain/repositories/user_preferences_repository.dart';
+import 'package:speak_right/data/repositories/shared_prefs_user_preferences_repository_impl.dart';
 import 'package:speak_right/data/datasources/ipa_local_data_source.dart';
 import 'package:speak_right/data/datasources/sqlite_ipa_local_data_source_impl.dart';
 import 'package:speak_right/data/repositories/mock_evaluation_repository_impl.dart';
@@ -20,6 +24,14 @@ import 'package:speak_right/domain/usecases/set_active_model_usecase.dart';
 final sl = GetIt.instance;
 
 Future<void> initDependencies() async {
+  // External
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  sl.registerLazySingleton<NotificationService>(() => notificationService);
+
   // External client (Dio HTTP Client)
   sl.registerLazySingleton<Dio>(() => Dio(BaseOptions(
         connectTimeout: const Duration(seconds: 15),
@@ -37,6 +49,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<STTModelRepository>(
     () => STTModelRepositoryImpl(sl<Dio>()),
+  );
+  sl.registerLazySingleton<UserPreferencesRepository>(
+    () => SharedPrefsUserPreferencesRepositoryImpl(sl<SharedPreferences>()),
   );
 
   // UseCases - Evaluation

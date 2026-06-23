@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speak_right/presentation/settings/views/speech_models_screen.dart';
+import 'package:speak_right/presentation/settings/views/practice_preferences_screen.dart';
+import 'package:speak_right/presentation/settings/views/audio_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -36,23 +38,42 @@ class SettingsScreen extends StatelessWidget {
           _buildCategoryHeader('PREFERENCES', primaryAccent),
           _buildSettingsTile(
             context,
-            icon: Icons.dark_mode_outlined,
-            title: 'Appearance',
-            subtitle: 'Dark theme',
+            icon: Icons.flag_outlined,
+            title: 'Practice Preferences',
+            subtitle: 'Daily goals and reminders',
             surfaceDark: surfaceDark,
             borderColor: borderColor,
             primaryAccent: primaryAccent,
             textMuted: textMuted,
             onTap: () {
-              // Placeholder for future theme settings
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Coming soon!')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const PracticePreferencesScreen(),
+                ),
               );
             },
           ),
           const SizedBox(height: 24),
           
-          _buildCategoryHeader('SPEECH RECOGNITION', primaryAccent),
+          _buildCategoryHeader('AUDIO & SPEECH', primaryAccent),
+          _buildSettingsTile(
+            context,
+            icon: Icons.mic_none_outlined,
+            title: 'Audio Settings',
+            subtitle: 'Auto-stop and noise suppression',
+            surfaceDark: surfaceDark,
+            borderColor: borderColor,
+            primaryAccent: primaryAccent,
+            textMuted: textMuted,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AudioSettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
           _buildSettingsTile(
             context,
             icon: Icons.record_voice_over_outlined,

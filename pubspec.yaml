@@ -53,6 +53,9 @@ dependencies:
 
   # HTTP / Downloader
   dio: ^5.4.0
+  shared_preferences: ^2.5.5
+  flutter_local_notifications: ^22.0.1
+  timezone: ^0.11.0
 
 dev_dependencies:
   flutter_test:
