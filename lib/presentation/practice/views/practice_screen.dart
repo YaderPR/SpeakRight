@@ -4,17 +4,19 @@ import 'package:speak_right/domain/entities/transcription_result.dart';
 import 'package:speak_right/presentation/practice/state/practice_state.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_providers.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_viewmodel.dart';
+import 'package:speak_right/presentation/practice/viewmodels/practice_text_notifier.dart';
+import 'package:speak_right/domain/entities/practice_level.dart';
 
 class PracticeScreen extends ConsumerWidget {
   const PracticeScreen({super.key});
-
-  static const String _referenceText =
-      'Integrate on-device speech-to-text engines to achieve zero-latency feedback';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(practiceViewModelProvider);
     final viewModel = ref.read(practiceViewModelProvider.notifier);
+    final currentText = ref.watch(currentPracticeTextProvider);
+    final textNotifier = ref.read(practiceTextNotifierProvider.notifier);
+    final textState = ref.watch(practiceTextNotifierProvider);
 
     // Premium Color System (Tailored Dark Theme)
     const bgDark = Color(0xFF0F0F13);
@@ -57,6 +59,42 @@ class PracticeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Level Selector
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: PracticeLevel.values.map((level) {
+                    final isSelected = textState.selectedLevel == level;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ChoiceChip(
+                        showCheckmark: false,
+                        label: Text(level.displayName),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          if (selected) {
+                            textNotifier.changeLevel(level);
+                          }
+                        },
+                        selectedColor: primaryAccent.withOpacity(0.2),
+                        backgroundColor: surfaceDark,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isSelected ? primaryAccent : borderColor,
+                          ),
+                        ),
+                        labelStyle: TextStyle(
+                          color: isSelected ? primaryAccent : textMuted,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Progress/Dashboard Card
               Container(
                 padding: const EdgeInsets.all(20),
@@ -120,14 +158,29 @@ class PracticeScreen extends ConsumerWidget {
                         }).toList(),
                       )
                     else
-                      Text(
-                        _referenceText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          height: 1.5,
-                        ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios, color: textMuted, size: 16),
+                            onPressed: state is PracticeInitial ? textNotifier.previousText : null,
+                          ),
+                          Expanded(
+                            child: Text(
+                              currentText,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_forward_ios, color: textMuted, size: 16),
+                            onPressed: state is PracticeInitial ? textNotifier.nextText : null,
+                          ),
+                        ],
                       ),
                   ],
                 ),
@@ -150,7 +203,7 @@ class PracticeScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // Recording / Control bar
-              _buildControlBar(state, viewModel, bgDark, surfaceDark, borderColor, primaryAccent, errorColor, successColor),
+              _buildControlBar(state, viewModel, currentText, bgDark, surfaceDark, borderColor, primaryAccent, errorColor, successColor),
             ],
           ),
         ),
@@ -286,6 +339,7 @@ class PracticeScreen extends ConsumerWidget {
   Widget _buildControlBar(
     PracticeState state,
     PracticeViewModel viewModel,
+    String currentText,
     Color bgDark,
     Color surfaceDark,
     Color borderColor,
@@ -298,7 +352,7 @@ class PracticeScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           GestureDetector(
-            onTap: () => viewModel.submitSpeech(_referenceText),
+            onTap: () => viewModel.submitSpeech(currentText),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               decoration: BoxDecoration(
