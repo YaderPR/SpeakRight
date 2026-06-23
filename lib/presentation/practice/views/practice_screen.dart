@@ -6,6 +6,7 @@ import 'package:speak_right/presentation/practice/viewmodels/practice_providers.
 import 'package:speak_right/presentation/practice/viewmodels/practice_viewmodel.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_text_notifier.dart';
 import 'package:speak_right/domain/entities/practice_level.dart';
+import 'package:speak_right/presentation/settings/views/settings_screen.dart';
 
 class PracticeScreen extends ConsumerWidget {
   const PracticeScreen({super.key});
@@ -49,7 +50,13 @@ class PracticeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: textMuted),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
