@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:speak_right/domain/entities/stt_model_package.dart';
+import 'package:speak_right/presentation/settings/viewmodels/preferences_viewmodel.dart';
 import 'package:speak_right/presentation/settings/viewmodels/settings_providers.dart';
 import 'package:speak_right/presentation/settings/viewmodels/settings_viewmodel.dart';
 
@@ -9,6 +11,7 @@ class SpeechModelsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(settingsViewModelProvider);
     final viewModel = ref.read(settingsViewModelProvider.notifier);
 
@@ -27,7 +30,7 @@ class SpeechModelsScreen extends ConsumerWidget {
             content: Text(next.error!),
             backgroundColor: errorColor,
             action: SnackBarAction(
-              label: 'Dismiss',
+              label: l10n.dismiss,
               textColor: Colors.white,
               onPressed: () => viewModel.dismissError(),
             ),
@@ -45,9 +48,9 @@ class SpeechModelsScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          'Speech Models',
-          style: TextStyle(
+        title: Text(
+          l10n.speechModels,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.5,
@@ -76,6 +79,7 @@ class SpeechModelsScreen extends ConsumerWidget {
                   successColor: successColor,
                   textMuted: textMuted,
                   errorColor: errorColor,
+                  l10n: l10n,
                 );
               },
             ),
@@ -94,6 +98,7 @@ class SpeechModelsScreen extends ConsumerWidget {
     required Color successColor,
     required Color textMuted,
     required Color errorColor,
+    required AppLocalizations l10n,
   }) {
     final sizeMb = model.sizeInMb.toStringAsFixed(1);
     
@@ -160,7 +165,7 @@ class SpeechModelsScreen extends ConsumerWidget {
                                     border: Border.all(color: primaryAccent.withOpacity(0.5)),
                                   ),
                                   child: Text(
-                                    'Streaming',
+                                    l10n.streaming,
                                     style: TextStyle(
                                       color: primaryAccent,
                                       fontSize: 10,

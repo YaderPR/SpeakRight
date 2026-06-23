@@ -6,6 +6,7 @@ class PreferencesState {
   final TimeOfDay? reminderTime;
   final bool autoStopVAD;
   final bool noiseSuppression;
+  final String languageCode;
 
   const PreferencesState({
     required this.dailyGoal,
@@ -13,6 +14,7 @@ class PreferencesState {
     required this.reminderTime,
     required this.autoStopVAD,
     required this.noiseSuppression,
+    required this.languageCode,
   });
 
   PreferencesState copyWith({
@@ -21,6 +23,7 @@ class PreferencesState {
     TimeOfDay? reminderTime,
     bool? autoStopVAD,
     bool? noiseSuppression,
+    String? languageCode,
   }) {
     return PreferencesState(
       dailyGoal: dailyGoal ?? this.dailyGoal,
@@ -28,6 +31,7 @@ class PreferencesState {
       reminderTime: reminderTime ?? this.reminderTime,
       autoStopVAD: autoStopVAD ?? this.autoStopVAD,
       noiseSuppression: noiseSuppression ?? this.noiseSuppression,
+      languageCode: languageCode ?? this.languageCode,
     );
   }
 }

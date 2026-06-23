@@ -27,6 +27,7 @@ class PreferencesViewModel extends StateNotifier<PreferencesState> {
           reminderTime: repository.getReminderTime(),
           autoStopVAD: repository.getAutoStopVAD(),
           noiseSuppression: repository.getNoiseSuppression(),
+          languageCode: repository.getLanguageCode(),
         ));
 
   Future<void> setDailyGoal(int minutes) async {
@@ -64,5 +65,10 @@ class PreferencesViewModel extends StateNotifier<PreferencesState> {
   Future<void> toggleNoiseSuppression(bool enabled) async {
     await _repository.saveNoiseSuppression(enabled);
     state = state.copyWith(noiseSuppression: enabled);
+  }
+
+  Future<void> setLanguage(String code) async {
+    await _repository.saveLanguageCode(code);
+    state = state.copyWith(languageCode: code);
   }
 }

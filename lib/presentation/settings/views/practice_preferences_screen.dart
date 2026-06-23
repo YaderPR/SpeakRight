@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:speak_right/presentation/settings/viewmodels/preferences_viewmodel.dart';
 
 class PracticePreferencesScreen extends ConsumerWidget {
@@ -7,6 +8,7 @@ class PracticePreferencesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(preferencesViewModelProvider);
     final viewModel = ref.read(preferencesViewModelProvider.notifier);
 
@@ -25,9 +27,9 @@ class PracticePreferencesScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          'Practice Preferences',
-          style: TextStyle(
+        title: Text(
+          l10n.practicePreferences,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.5,
@@ -53,8 +55,8 @@ class PracticePreferencesScreen extends ConsumerWidget {
                     Icon(Icons.flag_outlined, color: primaryAccent),
                     SizedBox(width: 12),
                     Text(
-                      'Daily Practice Goal',
-                      style: TextStyle(
+                      l10n.dailyPracticeGoal,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -64,14 +66,14 @@ class PracticePreferencesScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Set how many minutes you want to practice per day.',
+                  l10n.dailyPracticeGoalDesc,
                   style: TextStyle(color: textMuted, fontSize: 13),
                 ),
                 const SizedBox(height: 24),
                 Row(
                   children: [
                     Text(
-                      '${state.dailyGoal} min',
+                      '${state.dailyGoal} ${l10n.min}',
                       style: const TextStyle(
                         color: primaryAccent,
                         fontSize: 24,
@@ -117,8 +119,8 @@ class PracticePreferencesScreen extends ConsumerWidget {
                         Icon(Icons.notifications_active_outlined, color: primaryAccent),
                         SizedBox(width: 12),
                         Text(
-                          'Daily Reminders',
-                          style: TextStyle(
+                          l10n.dailyReminders,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -135,7 +137,7 @@ class PracticePreferencesScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'We will send you a push notification so you don\'t lose your streak.',
+                  l10n.dailyRemindersDesc,
                   style: TextStyle(color: textMuted, fontSize: 13),
                 ),
                 if (state.remindersEnabled) ...[
@@ -144,9 +146,9 @@ class PracticePreferencesScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text(
-                      'Reminder Time',
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                    title: Text(
+                      l10n.reminderTime,
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -157,7 +159,7 @@ class PracticePreferencesScreen extends ConsumerWidget {
                       child: Text(
                         state.reminderTime != null 
                           ? state.reminderTime!.format(context)
-                          : 'Select Time',
+                          : l10n.selectTime,
                         style: const TextStyle(
                           color: primaryAccent,
                           fontWeight: FontWeight.bold,

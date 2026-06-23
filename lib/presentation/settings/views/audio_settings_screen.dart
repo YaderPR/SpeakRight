@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:speak_right/presentation/settings/viewmodels/preferences_viewmodel.dart';
 
 class AudioSettingsScreen extends ConsumerWidget {
@@ -7,6 +8,7 @@ class AudioSettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(preferencesViewModelProvider);
     final viewModel = ref.read(preferencesViewModelProvider.notifier);
 
@@ -25,9 +27,9 @@ class AudioSettingsScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          'Audio Settings',
-          style: TextStyle(
+        title: Text(
+          l10n.audioSettings,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.5,
@@ -48,8 +50,8 @@ class AudioSettingsScreen extends ConsumerWidget {
               children: [
                 _buildToggleRow(
                   icon: Icons.mic_off_outlined,
-                  title: 'Auto-Stop (VAD)',
-                  subtitle: 'Automatically stop recording when you stop speaking.',
+                  title: l10n.autoStopVAD,
+                  subtitle: l10n.autoStopVADDesc,
                   value: state.autoStopVAD,
                   onChanged: (val) => viewModel.toggleAutoStopVAD(val),
                   primaryAccent: primaryAccent,
@@ -61,8 +63,8 @@ class AudioSettingsScreen extends ConsumerWidget {
                 ),
                 _buildToggleRow(
                   icon: Icons.waves_outlined,
-                  title: 'Noise Suppression',
-                  subtitle: 'Filter out background noise. May slightly delay processing.',
+                  title: l10n.noiseSuppression,
+                  subtitle: l10n.noiseSuppressionDesc,
                   value: state.noiseSuppression,
                   onChanged: (val) => viewModel.toggleNoiseSuppression(val),
                   primaryAccent: primaryAccent,

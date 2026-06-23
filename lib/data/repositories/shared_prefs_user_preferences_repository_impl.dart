@@ -12,6 +12,7 @@ class SharedPrefsUserPreferencesRepositoryImpl implements UserPreferencesReposit
   static const _kReminderMinute = 'reminder_minute';
   static const _kAutoStopVAD = 'auto_stop_vad';
   static const _kNoiseSuppression = 'noise_suppression';
+  static const _kLanguageCode = 'language_code';
 
   SharedPrefsUserPreferencesRepositoryImpl(this._prefs);
 
@@ -69,5 +70,15 @@ class SharedPrefsUserPreferencesRepositoryImpl implements UserPreferencesReposit
   @override
   Future<void> saveNoiseSuppression(bool enabled) async {
     await _prefs.setBool(_kNoiseSuppression, enabled);
+  }
+
+  @override
+  String getLanguageCode() {
+    return _prefs.getString(_kLanguageCode) ?? 'en';
+  }
+
+  @override
+  Future<void> saveLanguageCode(String code) async {
+    await _prefs.setString(_kLanguageCode, code);
   }
 }

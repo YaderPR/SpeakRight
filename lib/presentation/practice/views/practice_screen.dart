@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:speak_right/domain/entities/transcription_result.dart';
 import 'package:speak_right/presentation/practice/state/practice_state.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_providers.dart';
@@ -13,6 +14,7 @@ class PracticeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(practiceViewModelProvider);
     final viewModel = ref.read(practiceViewModelProvider.notifier);
     final currentText = ref.watch(currentPracticeTextProvider);
@@ -33,13 +35,13 @@ class PracticeScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.mic_none, color: primaryAccent, size: 28),
-            SizedBox(width: 8),
+            const Icon(Icons.mic_none, color: primaryAccent, size: 28),
+            const SizedBox(width: 8),
             Text(
-              'SpeakRight',
-              style: TextStyle(
+              l10n.appName,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
@@ -113,9 +115,9 @@ class PracticeScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'PRACTICE SENTENCE',
-                      style: TextStyle(
+                    Text(
+                      l10n.practiceSentenceTitle,
+                      style: const TextStyle(
                         color: primaryAccent,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -203,14 +205,14 @@ class PracticeScreen extends ConsumerWidget {
                     border: Border.all(color: borderColor),
                   ),
                   child: Center(
-                    child: _buildFeedbackContent(state, successColor, errorColor, textMuted, primaryAccent),
+                    child: _buildFeedbackContent(state, successColor, errorColor, textMuted, primaryAccent, l10n),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Recording / Control bar
-              _buildControlBar(state, viewModel, currentText, bgDark, surfaceDark, borderColor, primaryAccent, errorColor, successColor),
+              _buildControlBar(state, viewModel, currentText, bgDark, surfaceDark, borderColor, primaryAccent, errorColor, successColor, l10n),
             ],
           ),
         ),
@@ -224,6 +226,7 @@ class PracticeScreen extends ConsumerWidget {
     Color errorColor,
     Color textMuted,
     Color primaryAccent,
+    AppLocalizations l10n,
   ) {
     if (state is PracticeInitial) {
       return Column(
@@ -232,7 +235,7 @@ class PracticeScreen extends ConsumerWidget {
           Icon(Icons.record_voice_over, color: textMuted, size: 64),
           const SizedBox(height: 16),
           Text(
-            'Press the microphone to start practicing',
+            l10n.startPracticeMessage,
             style: TextStyle(color: textMuted, fontSize: 16),
             textAlign: TextAlign.center,
           ),
@@ -251,14 +254,14 @@ class PracticeScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Listening...',
-            style: TextStyle(
+          Text(
+            l10n.practiceMode,
+            style: const TextStyle(
                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'Speak clearly into your microphone',
+            l10n.speakClearlyMessage,
             style: TextStyle(color: textMuted, fontSize: 14),
           ),
         ],
@@ -272,9 +275,9 @@ class PracticeScreen extends ConsumerWidget {
             strokeWidth: 3,
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Evaluating pronunciation...',
-            style: TextStyle(color: Colors.white, fontSize: 18),
+          Text(
+            l10n.evaluatingMessage,
+            style: const TextStyle(color: Colors.white, fontSize: 18),
           ),
         ],
       );
@@ -310,7 +313,7 @@ class PracticeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            isGreat ? 'Great Pronunciation!' : 'Keep Practicing!',
+            isGreat ? l10n.greatPronunciation : l10n.keepPracticing,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -319,7 +322,7 @@ class PracticeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'You pronounced ${state.result.wordMatches.where((w) => w.isCorrect).length} out of ${state.result.wordMatches.length} words correctly.',
+            l10n.scoreDetail(state.result.wordMatches.where((w) => w.isCorrect).length, state.result.wordMatches.length),
             style: TextStyle(color: textMuted, fontSize: 14),
             textAlign: TextAlign.center,
           ),
@@ -332,7 +335,7 @@ class PracticeScreen extends ConsumerWidget {
           Icon(Icons.error_outline, color: errorColor, size: 64),
           const SizedBox(height: 16),
           Text(
-            'Error: ${state.errorMessage}',
+            '${l10n.errorMessage}: ${state.errorMessage}',
             style: TextStyle(color: errorColor, fontSize: 16),
             textAlign: TextAlign.center,
           ),
@@ -353,6 +356,7 @@ class PracticeScreen extends ConsumerWidget {
     Color primaryAccent,
     Color errorColor,
     Color successColor,
+    AppLocalizations l10n,
   ) {
     if (state is PracticeListening) {
       return Row(
@@ -373,13 +377,13 @@ class PracticeScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.check, color: Colors.white),
-                  SizedBox(width: 8),
+                  const Icon(Icons.check, color: Colors.white),
+                  const SizedBox(width: 8),
                   Text(
-                    'Evaluate',
-                    style: TextStyle(
+                    l10n.tapToSpeak,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

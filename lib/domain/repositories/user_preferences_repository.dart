@@ -18,4 +18,8 @@ abstract class UserPreferencesRepository {
 
   bool getNoiseSuppression();
   Future<void> saveNoiseSuppression(bool enabled);
+
+  // Localization
+  String getLanguageCode();
+  Future<void> saveLanguageCode(String code);
 }
