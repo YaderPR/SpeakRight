@@ -5,10 +5,10 @@
 import FlutterMacOS
 import Foundation
 
-import record_darwin
+import record_macos
 import sqflite_darwin
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  RecordPlugin.register(with: registry.registrar(forPlugin: "RecordPlugin"))
+  RecordMacOsPlugin.register(with: registry.registrar(forPlugin: "RecordMacOsPlugin"))
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
 }
