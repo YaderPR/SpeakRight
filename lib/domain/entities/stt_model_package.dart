@@ -8,6 +8,7 @@ class STTModelPackage {
   final String baseUrl;
   final bool isDownloaded;
   final bool isActive;
+  final bool isStreaming;
 
   const STTModelPackage({
     required this.id,
@@ -19,6 +20,7 @@ class STTModelPackage {
     required this.baseUrl,
     this.isDownloaded = false,
     this.isActive = false,
+    this.isStreaming = false,
   });
 
   double get sizeInMb => sizeInBytes / (1024 * 1024);
@@ -37,6 +39,7 @@ class STTModelPackage {
       baseUrl: baseUrl,
       isDownloaded: isDownloaded ?? this.isDownloaded,
       isActive: isActive ?? this.isActive,
+      isStreaming: isStreaming,
     );
   }
 }

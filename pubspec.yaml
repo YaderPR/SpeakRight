@@ -46,6 +46,7 @@ dependencies:
 
   # Speech & Audio
   record: ^5.0.4
+  sherpa_onnx: ^1.10.0
 
   # Text Utilities
   string_similarity: ^2.0.0

@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:speak_right/data/datasources/ipa_local_data_source.dart';
 import 'package:speak_right/data/datasources/sqlite_ipa_local_data_source_impl.dart';
 import 'package:speak_right/data/repositories/mock_evaluation_repository_impl.dart';
-import 'package:speak_right/data/repositories/mock_stt_repository_impl.dart';
+import 'package:speak_right/data/repositories/sherpa_onnx_stt_repository_impl.dart';
 import 'package:speak_right/data/repositories/sqlite_ipa_repository_impl.dart';
 import 'package:speak_right/data/repositories/stt_model_repository_impl.dart';
 import 'package:speak_right/domain/repositories/ipa_repository.dart';
@@ -30,7 +30,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<IpaLocalDataSource>(() => SqliteIpaLocalDataSourceImpl());
 
   // Repositories
-  sl.registerLazySingleton<STTRepository>(() => MockSTTRepositoryImpl());
+  sl.registerLazySingleton<STTRepository>(() => SherpaOnnxSttRepositoryImpl(sl<STTModelRepository>()));
   sl.registerLazySingleton<IPARepository>(() => SqliteIPARepositoryImpl(sl<IpaLocalDataSource>()));
   sl.registerLazySingleton<PronunciationEvaluationRepository>(
     () => MockEvaluationRepositoryImpl(),

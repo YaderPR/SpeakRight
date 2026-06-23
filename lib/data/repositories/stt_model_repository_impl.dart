@@ -27,8 +27,10 @@ class STTModelRepositoryImpl implements STTModelRepository {
         'encode.onnx',
         'uncached_decode.onnx',
         'cached_decode.onnx',
+        'tokens.txt',
       ],
       baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-moonshine-tiny-en-int8/resolve/main/',
+      isStreaming: false,
     ),
     STTModelPackage(
       id: 'multi_sensevoice_small',
@@ -41,6 +43,7 @@ class STTModelRepositoryImpl implements STTModelRepository {
         'tokens.txt',
       ],
       baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko/resolve/main/',
+      isStreaming: false,
     ),
     STTModelPackage(
       id: 'en_whisper_tiny',
@@ -49,10 +52,27 @@ class STTModelRepositoryImpl implements STTModelRepository {
       name: 'Whisper Tiny (English only)',
       sizeInBytes: 78643200, // ~75 MB
       fileNames: [
-        'tiny.en.onnx',
+        'tiny.en-encoder.onnx',
+        'tiny.en-decoder.onnx',
         'tiny.en-tokens.txt',
       ],
       baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/',
+      isStreaming: false,
+    ),
+    STTModelPackage(
+      id: 'en_zipformer_streaming',
+      languageCode: 'en',
+      languageName: 'English',
+      name: 'Zipformer Streaming (Real-time)',
+      sizeInBytes: 125829120, // ~120 MB
+      fileNames: [
+        'encoder-epoch-99-avg-1.onnx',
+        'decoder-epoch-99-avg-1.onnx',
+        'joiner-epoch-99-avg-1.onnx',
+        'tokens.txt',
+      ],
+      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-2023-06-26/resolve/main/',
+      isStreaming: true,
     ),
   ];
 
