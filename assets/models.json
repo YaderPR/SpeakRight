@@ -30,6 +30,20 @@
       "isStreaming": false
     },
     {
+      "id": "en_whisper_base",
+      "languageCode": "en",
+      "languageName": "English",
+      "name": "Whisper Base",
+      "sizeInBytes": 155198654,
+      "fileNames": [
+        "base.en-encoder.int8.onnx",
+        "base.en-decoder.int8.onnx",
+        "base.en-tokens.txt"
+      ],
+      "baseUrl": "https://huggingface.co/csukuangfj/sherpa-onnx-whisper-base.en/resolve/main/",
+      "isStreaming": false
+    },
+    {
       "id": "en_zipformer_streaming",
       "languageCode": "en",
       "languageName": "English",
@@ -42,6 +56,21 @@
         "tokens.txt"
       ],
       "baseUrl": "https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-2023-06-26/resolve/main/",
+      "isStreaming": true
+    },
+    {
+      "id": "bi_zipformer_streaming",
+      "languageCode": "multi",
+      "languageName": "Bilingual (ZH, EN)",
+      "name": "Zipformer Streaming",
+      "sizeInBytes": 78376510,
+      "fileNames": [
+        "encoder-epoch-99-avg-1.int8.onnx",
+        "decoder-epoch-99-avg-1.int8.onnx",
+        "joiner-epoch-99-avg-1.int8.onnx",
+        "tokens.txt"
+      ],
+      "baseUrl": "https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/resolve/main/",
       "isStreaming": true
     }
   ]

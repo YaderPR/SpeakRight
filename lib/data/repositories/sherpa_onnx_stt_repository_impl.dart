@@ -72,10 +72,10 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
 
       if (model.isStreaming) {
         // Zipformer streaming transducer config
-        final encoderPath = p.join(modelDir, 'encoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx');
-        final decoderPath = p.join(modelDir, 'decoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx');
-        final joinerPath = p.join(modelDir, 'joiner-epoch-99-avg-1-chunk-16-left-128.int8.onnx');
-        final tokensPath = p.join(modelDir, 'tokens.txt');
+        final encoderPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('encoder')));
+        final decoderPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('decoder')));
+        final joinerPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('joiner')));
+        final tokensPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('tokens')));
 
         if (!await File(encoderPath).exists() ||
             !await File(decoderPath).exists() ||
@@ -105,14 +105,14 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
         _onlineRecognizer = sherpa.OnlineRecognizer(config);
       } else {
         // Offline recognizer setup
-        final tokensPath = p.join(modelDir, 'tokens.txt');
+        final tokensPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('tokens'), orElse: () => 'tokens.txt'));
         sherpa.OfflineModelConfig modelConfig;
 
         if (model.id.contains('moonshine')) {
-          final preprocess = p.join(modelDir, 'preprocess.onnx');
-          final encoder = p.join(modelDir, 'encode.int8.onnx');
-          final uncachedDecoder = p.join(modelDir, 'uncached_decode.int8.onnx');
-          final cachedDecoder = p.join(modelDir, 'cached_decode.int8.onnx');
+          final preprocess = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('preprocess')));
+          final encoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('encode')));
+          final uncachedDecoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('uncached')));
+          final cachedDecoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('cached')));
 
           if (!await File(preprocess).exists() ||
               !await File(encoder).exists() ||
@@ -134,7 +134,7 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
             debug: false,
           );
         } else if (model.id.contains('sensevoice')) {
-          final modelPath = p.join(modelDir, 'model.int8.onnx');
+          final modelPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('model')));
 
           if (!await File(modelPath).exists() || !await File(tokensPath).exists()) {
             return Error(SpeechToTextFailure('Model files are missing for ${model.name}.'));
@@ -151,13 +151,12 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
             debug: false,
           );
         } else if (model.id.contains('whisper')) {
-          final encoder = p.join(modelDir, 'tiny.en-encoder.int8.onnx');
-          final decoder = p.join(modelDir, 'tiny.en-decoder.int8.onnx');
-          final tokens = p.join(modelDir, 'tiny.en-tokens.txt');
+          final encoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('encoder')));
+          final decoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('decoder')));
 
           if (!await File(encoder).exists() ||
               !await File(decoder).exists() ||
-              !await File(tokens).exists()) {
+              !await File(tokensPath).exists()) {
             return Error(SpeechToTextFailure('Model files are missing for ${model.name}.'));
           }
 
@@ -166,7 +165,7 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
               encoder: encoder,
               decoder: decoder,
             ),
-            tokens: tokens,
+            tokens: tokensPath,
             numThreads: 1,
             debug: false,
           );
