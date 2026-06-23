@@ -1,9 +1,18 @@
 import 'package:speak_right/core/usecases/usecase.dart';
-import 'package:speak_right/domain/entities/transcription_result.dart';
 
 abstract class STTRepository {
+  /// Initializes the on-device STT engine (e.g. loading ONNX models in memory).
+  Future<Result<void>> initialize();
+
+  /// Starts listening to audio input from the device microphone.
   Future<Result<void>> startListening();
+
+  /// Stops listening and releases the microphone.
   Future<Result<void>> stopListening();
+
+  /// A stream of the live transcribed text from the microphone input.
   Stream<String> get transcriptionStream;
-  Future<Result<TranscriptionResult>> evaluatePronunciation(String referenceText);
+
+  /// Disposes the STT engine resources.
+  Future<Result<void>> dispose();
 }

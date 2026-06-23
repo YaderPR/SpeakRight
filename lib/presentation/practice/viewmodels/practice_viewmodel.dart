@@ -16,8 +16,13 @@ class PracticeViewModel extends StateNotifier<PracticeState> {
   Future<void> submitSpeech(String referenceText) async {
     state = const PracticeProcessing();
 
+    // Since STT is currently mocked, we simulate the user's transcription input.
+    // In the real implementation, this will be passed from the captured STT stream.
+    final simulatedTranscribedText = referenceText;
+
     final result = await _evaluateUseCase(EvaluatePronunciationParams(
       referenceText: referenceText,
+      transcribedText: simulatedTranscribedText,
     ));
 
     if (result is Success<TranscriptionResult>) {
