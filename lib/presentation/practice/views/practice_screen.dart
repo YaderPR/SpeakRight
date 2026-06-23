@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:speak_right/l10n/app_localizations.dart';
 import 'package:speak_right/domain/entities/transcription_result.dart';
 import 'package:speak_right/presentation/practice/state/practice_state.dart';
 import 'package:speak_right/presentation/practice/viewmodels/practice_providers.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:speak_right/l10n/app_localizations.dart';
 import 'package:speak_right/presentation/settings/views/speech_models_screen.dart';
 import 'package:speak_right/presentation/settings/views/practice_preferences_screen.dart';
 import 'package:speak_right/presentation/settings/views/audio_settings_screen.dart';

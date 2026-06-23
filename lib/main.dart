@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:speak_right/l10n/app_localizations.dart';
 import 'package:speak_right/core/di/injection_container.dart' as di;
 import 'package:speak_right/presentation/practice/views/practice_screen.dart';
 import 'package:speak_right/presentation/settings/viewmodels/preferences_viewmodel.dart';
@@ -34,16 +34,13 @@ class SpeakRightApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       locale: Locale(preferencesState.languageCode),
-      localizationsDelegates: const [
+      localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const PracticeScreen(),
     );
   }

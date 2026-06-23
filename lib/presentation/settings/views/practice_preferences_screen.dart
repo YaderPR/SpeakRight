@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:speak_right/l10n/app_localizations.dart';
 import 'package:speak_right/presentation/settings/viewmodels/preferences_viewmodel.dart';
 
 class PracticePreferencesScreen extends ConsumerWidget {
@@ -50,10 +50,17 @@ class PracticePreferencesScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.flag_outlined, color: primaryAccent),
-                    SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: primaryAccent.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.flag_outlined, color: primaryAccent),
+                    ),
+                    const SizedBox(width: 12),
                     Text(
                       l10n.dailyPracticeGoal,
                       style: const TextStyle(
@@ -114,10 +121,17 @@ class PracticePreferencesScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.notifications_active_outlined, color: primaryAccent),
-                        SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: primaryAccent.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.notifications_active_outlined, color: primaryAccent),
+                        ),
+                        const SizedBox(width: 12),
                         Text(
                           l10n.dailyReminders,
                           style: const TextStyle(
