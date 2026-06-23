@@ -200,11 +200,10 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   }
 
   Float32List _convertToFloat32(Uint8List bytes) {
-    // 16-bit PCM has 2 bytes per sample.
-    final int16Buffer = bytes.buffer.asInt16List(bytes.offsetInBytes, bytes.length ~/ 2);
-    final float32List = Float32List(int16Buffer.length);
-    for (int i = 0; i < int16Buffer.length; i++) {
-      float32List[i] = int16Buffer[i] / 32768.0;
+    final byteData = ByteData.sublistView(bytes);
+    final float32List = Float32List(bytes.length ~/ 2);
+    for (int i = 0; i < float32List.length; i++) {
+      float32List[i] = byteData.getInt16(i * 2, Endian.little) / 32768.0;
     }
     return float32List;
   }

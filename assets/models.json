@@ -1,0 +1,48 @@
+{
+  "models": [
+    {
+      "id": "en_moonshine_tiny",
+      "languageCode": "en",
+      "languageName": "English",
+      "name": "Moonshine Tiny",
+      "sizeInBytes": 139198654,
+      "fileNames": [
+        "preprocess.onnx",
+        "encode.int8.onnx",
+        "uncached_decode.int8.onnx",
+        "cached_decode.int8.onnx",
+        "tokens.txt"
+      ],
+      "baseUrl": "https://huggingface.co/csukuangfj/sherpa-onnx-moonshine-tiny-en-int8/resolve/main/",
+      "isStreaming": false
+    },
+    {
+      "id": "multi_sensevoice_small",
+      "languageCode": "multi",
+      "languageName": "Multilingual (EN, ZH, JA, KO)",
+      "name": "SenseVoice Small",
+      "sizeInBytes": 239549735,
+      "fileNames": [
+        "model.int8.onnx",
+        "tokens.txt"
+      ],
+      "baseUrl": "https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/",
+      "isStreaming": false
+    },
+    {
+      "id": "en_zipformer_streaming",
+      "languageCode": "en",
+      "languageName": "English",
+      "name": "Zipformer Streaming (Fast)",
+      "sizeInBytes": 58376510,
+      "fileNames": [
+        "encoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx",
+        "decoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx",
+        "joiner-epoch-99-avg-1-chunk-16-left-128.int8.onnx",
+        "tokens.txt"
+      ],
+      "baseUrl": "https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-2023-06-26/resolve/main/",
+      "isStreaming": true
+    }
+  ]
+}

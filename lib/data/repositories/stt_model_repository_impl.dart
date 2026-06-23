@@ -9,72 +9,46 @@ import 'package:speak_right/core/usecases/usecase.dart';
 import 'package:speak_right/domain/entities/stt_model_package.dart';
 import 'package:speak_right/domain/repositories/stt_model_repository.dart';
 
+import 'package:flutter/services.dart' show rootBundle;
+
 class STTModelRepositoryImpl implements STTModelRepository {
   final Dio _dio;
 
   static const String _settingsFileName = 'model_settings.json';
 
-  // Predefined supported models
-  static const List<STTModelPackage> _predefinedModels = [
-    STTModelPackage(
-      id: 'en_moonshine_tiny',
-      languageCode: 'en',
-      languageName: 'English',
-      name: 'Moonshine Tiny',
-      sizeInBytes: 123967539, // ~124 MB
-      fileNames: [
-        'preprocess.onnx',
-        'encode.int8.onnx',
-        'uncached_decode.int8.onnx',
-        'cached_decode.int8.onnx',
-        'tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-moonshine-tiny-en-int8/resolve/main/',
-      isStreaming: false,
-    ),
-    STTModelPackage(
-      id: 'multi_sensevoice_small',
-      languageCode: 'multi',
-      languageName: 'Multilingual (EN, ZH, JA, KO)',
-      name: 'SenseVoice Small',
-      sizeInBytes: 239549735, // ~240 MB
-      fileNames: [
-        'model.int8.onnx',
-        'tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/',
-      isStreaming: false,
-    ),
-    STTModelPackage(
-      id: 'en_whisper_tiny',
-      languageCode: 'en',
-      languageName: 'English',
-      name: 'Whisper Tiny (English only)',
-      sizeInBytes: 103627191, // ~104 MB
-      fileNames: [
-        'tiny.en-encoder.int8.onnx',
-        'tiny.en-decoder.int8.onnx',
-        'tiny.en-tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/',
-      isStreaming: false,
-    ),
-    STTModelPackage(
-      id: 'en_zipformer_streaming',
-      languageCode: 'en',
-      languageName: 'English',
-      name: 'Zipformer Streaming (Real-time)',
-      sizeInBytes: 72654782, // ~73 MB
-      fileNames: [
-        'encoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx',
-        'decoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx',
-        'joiner-epoch-99-avg-1-chunk-16-left-128.int8.onnx',
-        'tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-2023-06-26/resolve/main/',
-      isStreaming: true,
-    ),
-  ];
+  // Cache for loaded models
+  List<STTModelPackage> _cachedModels = [];
+
+  Future<List<STTModelPackage>> _loadModels() async {
+    if (_cachedModels.isNotEmpty) return _cachedModels;
+    
+    try {
+      // Future enhancement: Try fetching from a remote JSON URL first using _dio.get()
+      
+      // Fallback to bundled assets
+      final jsonString = await rootBundle.loadString('assets/models.json');
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      final modelsList = jsonData['models'] as List<dynamic>;
+      
+      _cachedModels = modelsList.map((m) {
+        return STTModelPackage(
+          id: m['id'],
+          languageCode: m['languageCode'],
+          languageName: m['languageName'],
+          name: m['name'],
+          sizeInBytes: m['sizeInBytes'],
+          fileNames: List<String>.from(m['fileNames']),
+          baseUrl: m['baseUrl'],
+          isStreaming: m['isStreaming'],
+        );
+      }).toList();
+      
+      return _cachedModels;
+    } catch (e) {
+      // Ultimate fallback if something fails
+      return [];
+    }
+  }
 
   STTModelRepositoryImpl(this._dio);
 
@@ -97,9 +71,11 @@ class STTModelRepositoryImpl implements STTModelRepository {
     try {
       final activeIdResult = await getActiveModel();
       final activeId = activeIdResult is Success<STTModelPackage?> ? activeIdResult.data?.id : 'en_moonshine_tiny';
+      
+      final models = await _loadModels();
 
       final enrichedList = <STTModelPackage>[];
-      for (final model in _predefinedModels) {
+      for (final model in models) {
         final downloaded = (await isModelDownloaded(model) as Success<bool>).data;
         enrichedList.add(model.copyWith(
           isDownloaded: downloaded,
@@ -115,10 +91,12 @@ class STTModelRepositoryImpl implements STTModelRepository {
   @override
   Future<Result<STTModelPackage?>> getActiveModel() async {
     try {
+      final models = await _loadModels();
+      final defaultModel = models.isNotEmpty ? models.first : null;
+      
       final settingsFile = await _getSettingsFile();
       if (!await settingsFile.exists()) {
-        // Return default model
-        return Success(_predefinedModels.first);
+        return Success(defaultModel);
       }
 
       final content = await settingsFile.readAsString();
@@ -126,12 +104,12 @@ class STTModelRepositoryImpl implements STTModelRepository {
       final activeId = data['active_model_id'] as String?;
 
       if (activeId == null) {
-        return Success(_predefinedModels.first);
+        return Success(defaultModel);
       }
 
-      final activeModel = _predefinedModels.firstWhere(
+      final activeModel = models.firstWhere(
         (m) => m.id == activeId,
-        orElse: () => _predefinedModels.first,
+        orElse: () => defaultModel!,
       );
 
       final isDownloadedResult = await isModelDownloaded(activeModel);
@@ -142,7 +120,8 @@ class STTModelRepositoryImpl implements STTModelRepository {
         isActive: true,
       ));
     } catch (e) {
-      return Success(_predefinedModels.first); // Fallback to default
+      final models = await _loadModels();
+      return Success(models.isNotEmpty ? models.first : null); // Fallback to default
     }
   }
 
