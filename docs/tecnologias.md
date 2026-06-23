@@ -21,6 +21,11 @@ Sherpa-ONNX es un framework de reconocimiento de voz local muy activo y optimiza
 *   **SenseVoice-Small (Alibaba):** Un modelo no autorregresivo (calcula todo el texto en una sola pasada en lugar de palabra por palabra). Es hasta 15 veces más rápido que Whisper y consume muy pocos recursos, además de ofrecer detección de emociones y eventos de audio (risas, tos, etc.).
 *   **Licencia:** Apache 2.0 / MIT (Completamente gratuito y open-source).
 
+### Escalabilidad Dinámica (Aprovechando la Gama Alta)
+El uso de Sherpa-ONNX **no limita en absoluto a los dispositivos potentes**. La arquitectura nos permite implementar una descarga dinámica de modelos:
+*   **Gama Baja/Media:** La app usará `Moonshine Tiny` por defecto para garantizar fluidez.
+*   **Gama Alta:** La app puede detectar el hardware (o permitirle al usuario activar el "Modo Alta Precisión") y descargar automáticamente un modelo mucho más potente y pesado (como Whisper Base/Small o Moonshine Base/Medium), aprovechando toda la CPU/RAM disponible sin modificar el código interno del motor.
+
 ### Opción B: Vosk (`vosk_flutter`)
 *   **Licencia:** Apache 2.0.
 *   **Pros:** Es el campeón indiscutible en consumo de recursos. Puede correr fluidamente incluso en una Raspberry Pi Zero o teléfonos de gama muy baja sin impactar el rendimiento.
