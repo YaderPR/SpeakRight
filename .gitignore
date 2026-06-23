@@ -1,45 +1,89 @@
-# Miscellaneous
+# -------------------------------------------------------------------------
+# SpeakRight - Comprehensive Git Ignore
+# -------------------------------------------------------------------------
+
+# Miscellaneous / OS files
 *.class
 *.log
 *.pyc
 *.swp
 .DS_Store
-.atom/
-.build/
-.buildlog/
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 .history
 .svn/
-.swiftpm/
 migrate_working_dir/
 
-# IntelliJ related
+# IDE / Editor Files
+.idea/
 *.iml
 *.ipr
 *.iws
-.idea/
+.vscode/
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Secrets / Environment files
+.env
+.env.*
+*.env
+*.keystore
+*.jks
+*.p12
+*.pem
+*.developerprofile
+key.properties
+signing-key.password
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Flutter / Dart / Pub related
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
-/build/
+build/
+bin/
+doc/api/
+lib/generated/
 /coverage/
 
-# Symbolication related
-app.*.symbols
+# Android-specific exclusions
+/android/local.properties
+/android/key.properties
+/android/.gradle/
+/android/app/build/
+/android/build/
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
 
-# Obfuscation related
-app.*.map.json
+# iOS/macOS-specific exclusions
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/flutter_export_environment.sh
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/App.framework
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Runner/GeneratedPluginRegistrant.h
+/ios/Runner/GeneratedPluginRegistrant.m
+/macos/Flutter/ephemeral/
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Web-specific exclusions
+/web/flutter_bootstrap.js
+
+# On-Device ML Models (Avoid committing large weights to git)
+*.onnx
+*.bin
+*.gguf
+*.tflite
+/assets/models/
