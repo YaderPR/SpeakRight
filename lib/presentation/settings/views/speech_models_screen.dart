@@ -183,7 +183,7 @@ class SpeechModelsScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    if (isActive)
+                    if (isActive && model.isDownloaded)
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(

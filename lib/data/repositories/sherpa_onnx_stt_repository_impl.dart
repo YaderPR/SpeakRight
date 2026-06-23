@@ -15,6 +15,8 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   final STTModelRepository _modelRepository;
   final AudioRecorder _audioRecorder;
 
+  static bool _isBindingsInitialized = false;
+
   final _transcriptionController = StreamController<String>.broadcast();
   StreamSubscription<Uint8List>? _recordingSubscription;
 
@@ -35,6 +37,11 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   @override
   Future<Result<void>> initialize() async {
     try {
+      if (!_isBindingsInitialized) {
+        sherpa.initBindings();
+        _isBindingsInitialized = true;
+      }
+
       final activeModelResult = await _modelRepository.getActiveModel();
       if (activeModelResult is! Success<STTModelPackage?> || activeModelResult.data == null) {
         return const Error(SpeechToTextFailure('No active model selected.'));
@@ -65,9 +72,9 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
 
       if (model.isStreaming) {
         // Zipformer streaming transducer config
-        final encoderPath = p.join(modelDir, 'encoder-epoch-99-avg-1.onnx');
-        final decoderPath = p.join(modelDir, 'decoder-epoch-99-avg-1.onnx');
-        final joinerPath = p.join(modelDir, 'joiner-epoch-99-avg-1.onnx');
+        final encoderPath = p.join(modelDir, 'encoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx');
+        final decoderPath = p.join(modelDir, 'decoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx');
+        final joinerPath = p.join(modelDir, 'joiner-epoch-99-avg-1-chunk-16-left-128.int8.onnx');
         final tokensPath = p.join(modelDir, 'tokens.txt');
 
         if (!await File(encoderPath).exists() ||
@@ -103,9 +110,9 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
 
         if (model.id.contains('moonshine')) {
           final preprocess = p.join(modelDir, 'preprocess.onnx');
-          final encoder = p.join(modelDir, 'encode.onnx');
-          final uncachedDecoder = p.join(modelDir, 'uncached_decode.onnx');
-          final cachedDecoder = p.join(modelDir, 'cached_decode.onnx');
+          final encoder = p.join(modelDir, 'encode.int8.onnx');
+          final uncachedDecoder = p.join(modelDir, 'uncached_decode.int8.onnx');
+          final cachedDecoder = p.join(modelDir, 'cached_decode.int8.onnx');
 
           if (!await File(preprocess).exists() ||
               !await File(encoder).exists() ||
@@ -144,8 +151,8 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
             debug: false,
           );
         } else if (model.id.contains('whisper')) {
-          final encoder = p.join(modelDir, 'tiny.en-encoder.onnx');
-          final decoder = p.join(modelDir, 'tiny.en-decoder.onnx');
+          final encoder = p.join(modelDir, 'tiny.en-encoder.int8.onnx');
+          final decoder = p.join(modelDir, 'tiny.en-decoder.int8.onnx');
           final tokens = p.join(modelDir, 'tiny.en-tokens.txt');
 
           if (!await File(encoder).exists() ||

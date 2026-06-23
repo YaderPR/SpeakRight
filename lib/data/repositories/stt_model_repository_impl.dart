@@ -21,12 +21,12 @@ class STTModelRepositoryImpl implements STTModelRepository {
       languageCode: 'en',
       languageName: 'English',
       name: 'Moonshine Tiny',
-      sizeInBytes: 36700160, // ~35 MB
+      sizeInBytes: 123967539, // ~124 MB
       fileNames: [
         'preprocess.onnx',
-        'encode.onnx',
-        'uncached_decode.onnx',
-        'cached_decode.onnx',
+        'encode.int8.onnx',
+        'uncached_decode.int8.onnx',
+        'cached_decode.int8.onnx',
         'tokens.txt',
       ],
       baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-moonshine-tiny-en-int8/resolve/main/',
@@ -37,12 +37,12 @@ class STTModelRepositoryImpl implements STTModelRepository {
       languageCode: 'multi',
       languageName: 'Multilingual (EN, ZH, JA, KO)',
       name: 'SenseVoice Small',
-      sizeInBytes: 125829120, // ~120 MB
+      sizeInBytes: 239549735, // ~240 MB
       fileNames: [
         'model.int8.onnx',
         'tokens.txt',
       ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko/resolve/main/',
+      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/',
       isStreaming: false,
     ),
     STTModelPackage(
@@ -50,10 +50,10 @@ class STTModelRepositoryImpl implements STTModelRepository {
       languageCode: 'en',
       languageName: 'English',
       name: 'Whisper Tiny (English only)',
-      sizeInBytes: 78643200, // ~75 MB
+      sizeInBytes: 103627191, // ~104 MB
       fileNames: [
-        'tiny.en-encoder.onnx',
-        'tiny.en-decoder.onnx',
+        'tiny.en-encoder.int8.onnx',
+        'tiny.en-decoder.int8.onnx',
         'tiny.en-tokens.txt',
       ],
       baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/',
@@ -64,11 +64,11 @@ class STTModelRepositoryImpl implements STTModelRepository {
       languageCode: 'en',
       languageName: 'English',
       name: 'Zipformer Streaming (Real-time)',
-      sizeInBytes: 125829120, // ~120 MB
+      sizeInBytes: 72654782, // ~73 MB
       fileNames: [
-        'encoder-epoch-99-avg-1.onnx',
-        'decoder-epoch-99-avg-1.onnx',
-        'joiner-epoch-99-avg-1.onnx',
+        'encoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx',
+        'decoder-epoch-99-avg-1-chunk-16-left-128.int8.onnx',
+        'joiner-epoch-99-avg-1-chunk-16-left-128.int8.onnx',
         'tokens.txt',
       ],
       baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-2023-06-26/resolve/main/',
@@ -159,65 +159,57 @@ class STTModelRepositoryImpl implements STTModelRepository {
   }
 
   @override
-  Stream<double> downloadModel(STTModelPackage package) async* {
-    final dirPath = await _getModelsDirectoryPath();
-    final packageDir = Directory(p.join(dirPath, package.id));
-    if (!await packageDir.exists()) {
-      await packageDir.create(recursive: true);
-    }
+  Stream<double> downloadModel(STTModelPackage package) {
+    final controller = StreamController<double>();
+    
+    Future<void> performDownload() async {
+      try {
+        final dirPath = await _getModelsDirectoryPath();
+        final packageDir = Directory(p.join(dirPath, package.id));
+        if (!await packageDir.exists()) {
+          await packageDir.create(recursive: true);
+        }
 
-    final totalFiles = package.fileNames.length;
-    final fileProgresses = List<double>.filled(totalFiles, 0.0);
+        final totalFiles = package.fileNames.length;
+        final fileProgresses = List<double>.filled(totalFiles, 0.0);
 
-    for (int i = 0; i < totalFiles; i++) {
-      final fileName = package.fileNames[i];
-      final fileUrl = '${package.baseUrl}$fileName';
-      final filePath = p.join(packageDir.path, fileName);
+        for (int i = 0; i < totalFiles; i++) {
+          final fileName = package.fileNames[i];
+          final fileUrl = '${package.baseUrl}$fileName';
+          final filePath = p.join(packageDir.path, fileName);
 
-      // Check if file already exists with identical size (simple cache check)
-      final localFile = File(filePath);
-      if (await localFile.exists()) {
-        // Skip download, assume completed
-        fileProgresses[i] = 1.0;
-        final totalProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
-        yield totalProgress;
-        continue;
-      }
-
-      final completer = Completer<void>();
-      double fileProgress = 0.0;
-      dynamic downloadError;
-
-      // Start download
-      await _dio.download(
-        fileUrl,
-        filePath,
-        onReceiveProgress: (received, total) {
-          if (total > 0) {
-            fileProgress = received / total;
-            fileProgresses[i] = fileProgress;
-            final overallProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
-            // Emit progress
-            completer.complete(); // just trigger event loop yield
+          final localFile = File(filePath);
+          if (await localFile.exists()) {
+            fileProgresses[i] = 1.0;
+            final totalProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
+            controller.add(totalProgress);
+            continue;
           }
-        },
-      ).then((_) {
-        fileProgresses[i] = 1.0;
-        if (!completer.isCompleted) completer.complete();
-      }).catchError((err) {
-        downloadError = err;
-        if (!completer.isCompleted) completer.complete();
-      });
 
-      await completer.future;
-
-      if (downloadError != null) {
-        throw Exception('Error descargando archivo $fileName: $downloadError');
+          await _dio.download(
+            fileUrl,
+            filePath,
+            onReceiveProgress: (received, total) {
+              if (total > 0) {
+                fileProgresses[i] = received / total;
+                final overallProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
+                controller.add(overallProgress);
+              }
+            },
+          );
+          
+          fileProgresses[i] = 1.0;
+          controller.add(fileProgresses.reduce((a, b) => a + b) / totalFiles);
+        }
+        controller.close();
+      } catch (e) {
+        controller.addError(Exception('Error descargando archivo: $e'));
+        controller.close();
       }
-
-      final overallProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
-      yield overallProgress;
     }
+
+    performDownload();
+    return controller.stream;
   }
 
   @override
