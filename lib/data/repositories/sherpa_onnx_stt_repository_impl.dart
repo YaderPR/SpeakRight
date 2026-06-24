@@ -278,7 +278,7 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   }
 
   @override
-  Future<Result<void>> stopListening() async {
+  Future<Result<String>> stopListening() async {
     try {
       await _recordingSubscription?.cancel();
       _recordingSubscription = null;
@@ -292,6 +292,8 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
           activeModelResult.data != null &&
           activeModelResult.data!.isStreaming;
 
+      String finalTranscription = '';
+
       if (!isStreaming) {
         if (_offlineRecognizer == null) {
           return const Error(SpeechToTextFailure('OfflineRecognizer is not initialized.'));
@@ -303,17 +305,22 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
           stream.acceptWaveform(samples: samples, sampleRate: 16000);
           _offlineRecognizer!.decode(stream);
           final result = _offlineRecognizer!.getResult(stream);
-          _transcriptionController.add(result.text);
+          finalTranscription = result.text;
+          _transcriptionController.add(finalTranscription);
           stream.free();
         }
         _offlineAudioBuffer.clear();
       } else {
         // Online stream finalization
+        if (_onlineStream != null && _onlineRecognizer != null) {
+            final result = _onlineRecognizer!.getResult(_onlineStream!);
+            finalTranscription = result.text;
+        }
         _onlineStream?.free();
         _onlineStream = null;
       }
 
-      return const Success(null);
+      return Success(finalTranscription);
     } catch (e) {
       return Error(SpeechToTextFailure('Failed to stop listening: $e'));
     }
