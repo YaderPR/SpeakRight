@@ -181,8 +181,17 @@ class STTModelRepositoryImpl implements STTModelRepository {
           controller.add(fileProgresses.reduce((a, b) => a + b) / totalFiles);
         }
         controller.close();
+      } on DioException catch (e) {
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout || e.type == DioExceptionType.sendTimeout) {
+          controller.addError('errorTimeout');
+        } else if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.unknown) {
+          controller.addError('errorNoInternet');
+        } else {
+          controller.addError('errorDownloadFailed');
+        }
+        controller.close();
       } catch (e) {
-        controller.addError(Exception('Error descargando archivo: $e'));
+        controller.addError('errorDownloadFailed');
         controller.close();
       }
     }

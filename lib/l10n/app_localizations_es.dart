@@ -191,4 +191,33 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get transcription => 'Transcripción';
+
+  @override
+  String get errorTimeout => 'Tiempo de espera agotado. Revisa tu internet.';
+
+  @override
+  String get errorNoInternet => 'Sin conexión a internet.';
+
+  @override
+  String get errorDownloadFailed =>
+      'Error de descarga. Por favor intenta de nuevo.';
+
+  @override
+  String get errorDeleteFailed => 'No se pudo eliminar el modelo.';
+
+  @override
+  String get errorActiveModel => 'No puedes eliminar el modelo activo.';
+
+  @override
+  String get errorDownloadInProgress => 'Ya hay una descarga en progreso.';
+
+  @override
+  String get errorNeedDownloadFirst =>
+      'Debes descargar el modelo primero para activarlo.';
+
+  @override
+  String get errorSaveModel => 'No se pudo guardar la selección del modelo.';
+
+  @override
+  String get errorLoadSettings => 'Error al cargar los ajustes de voz.';
 }

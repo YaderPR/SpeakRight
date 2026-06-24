@@ -451,6 +451,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transcription'**
   String get transcription;
+
+  /// No description provided for @errorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection timeout. Please check your internet.'**
+  String get errorTimeout;
+
+  /// No description provided for @errorNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection.'**
+  String get errorNoInternet;
+
+  /// No description provided for @errorDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed. Please try again.'**
+  String get errorDownloadFailed;
+
+  /// No description provided for @errorDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete model.'**
+  String get errorDeleteFailed;
+
+  /// No description provided for @errorActiveModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete active model.'**
+  String get errorActiveModel;
+
+  /// No description provided for @errorDownloadInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'A download is already in progress.'**
+  String get errorDownloadInProgress;
+
+  /// No description provided for @errorNeedDownloadFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the model first to activate it.'**
+  String get errorNeedDownloadFirst;
+
+  /// No description provided for @errorSaveModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save model selection.'**
+  String get errorSaveModel;
+
+  /// No description provided for @errorLoadSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading voice settings.'**
+  String get errorLoadSettings;
 }
 
 class _AppLocalizationsDelegate

@@ -49,7 +49,7 @@ class SettingsViewModel extends StateNotifier<SettingsState> {
     } else {
       state = state.copyWith(
         isLoading: false,
-        error: 'Error al cargar las configuraciones de voz.',
+        error: 'errorLoadSettings',
       );
     }
   }
@@ -62,7 +62,7 @@ class SettingsViewModel extends StateNotifier<SettingsState> {
     if (!model.isDownloaded) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Debes descargar el modelo primero para activarlo.',
+        error: 'errorNeedDownloadFirst',
       );
       return;
     }
@@ -74,14 +74,14 @@ class SettingsViewModel extends StateNotifier<SettingsState> {
     } else {
       state = state.copyWith(
         isLoading: false,
-        error: 'No se pudo guardar la selección del modelo.',
+        error: 'errorSaveModel',
       );
     }
   }
 
   void startDownload(STTModelPackage package) {
     if (state.downloadingModelId != null) {
-      state = state.copyWith(error: 'Ya hay una descarga en progreso.');
+      state = state.copyWith(error: 'errorDownloadInProgress');
       return;
     }
 
@@ -97,7 +97,7 @@ class SettingsViewModel extends StateNotifier<SettingsState> {
       },
       onError: (err) {
         state = state.copyWith(
-          error: 'Fallo al descargar el modelo: $err',
+          error: err.toString(),
           downloadingModelId: null,
           downloadProgress: 0.0,
         );
@@ -112,7 +112,7 @@ class SettingsViewModel extends StateNotifier<SettingsState> {
 
   Future<void> removeModel(STTModelPackage package) async {
     if (package.isActive) {
-      state = state.copyWith(error: 'No puedes borrar el modelo que está actualmente activo.');
+      state = state.copyWith(error: 'errorActiveModel');
       return;
     }
 
@@ -124,7 +124,7 @@ class SettingsViewModel extends StateNotifier<SettingsState> {
     } else {
       state = state.copyWith(
         isLoading: false,
-        error: 'No se pudieron borrar los archivos del modelo.',
+        error: 'errorDeleteFailed',
       );
     }
   }

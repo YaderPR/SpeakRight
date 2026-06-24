@@ -63,5 +63,14 @@
   "guidedPractice": "Guided Practice",
   "typePromptOptional": "Type a target sentence (Optional)...",
   "noPromptHint": "Or just speak freely...",
-  "transcription": "Transcription"
+  "transcription": "Transcription",
+  "errorTimeout": "Connection timeout. Please check your internet.",
+  "errorNoInternet": "No internet connection.",
+  "errorDownloadFailed": "Download failed. Please try again.",
+  "errorDeleteFailed": "Could not delete model.",
+  "errorActiveModel": "Cannot delete active model.",
+  "errorDownloadInProgress": "A download is already in progress.",
+  "errorNeedDownloadFirst": "Download the model first to activate it.",
+  "errorSaveModel": "Could not save model selection.",
+  "errorLoadSettings": "Error loading voice settings."
 }
