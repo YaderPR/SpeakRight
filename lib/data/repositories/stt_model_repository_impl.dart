@@ -9,72 +9,46 @@ import 'package:speak_right/core/usecases/usecase.dart';
 import 'package:speak_right/domain/entities/stt_model_package.dart';
 import 'package:speak_right/domain/repositories/stt_model_repository.dart';
 
+import 'package:flutter/services.dart' show rootBundle;
+
 class STTModelRepositoryImpl implements STTModelRepository {
   final Dio _dio;
 
   static const String _settingsFileName = 'model_settings.json';
 
-  // Predefined supported models
-  static const List<STTModelPackage> _predefinedModels = [
-    STTModelPackage(
-      id: 'en_moonshine_tiny',
-      languageCode: 'en',
-      languageName: 'English',
-      name: 'Moonshine Tiny',
-      sizeInBytes: 36700160, // ~35 MB
-      fileNames: [
-        'preprocess.onnx',
-        'encode.onnx',
-        'uncached_decode.onnx',
-        'cached_decode.onnx',
-        'tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-moonshine-tiny-en-int8/resolve/main/',
-      isStreaming: false,
-    ),
-    STTModelPackage(
-      id: 'multi_sensevoice_small',
-      languageCode: 'multi',
-      languageName: 'Multilingual (EN, ZH, JA, KO)',
-      name: 'SenseVoice Small',
-      sizeInBytes: 125829120, // ~120 MB
-      fileNames: [
-        'model.int8.onnx',
-        'tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko/resolve/main/',
-      isStreaming: false,
-    ),
-    STTModelPackage(
-      id: 'en_whisper_tiny',
-      languageCode: 'en',
-      languageName: 'English',
-      name: 'Whisper Tiny (English only)',
-      sizeInBytes: 78643200, // ~75 MB
-      fileNames: [
-        'tiny.en-encoder.onnx',
-        'tiny.en-decoder.onnx',
-        'tiny.en-tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-whisper-tiny.en/resolve/main/',
-      isStreaming: false,
-    ),
-    STTModelPackage(
-      id: 'en_zipformer_streaming',
-      languageCode: 'en',
-      languageName: 'English',
-      name: 'Zipformer Streaming (Real-time)',
-      sizeInBytes: 125829120, // ~120 MB
-      fileNames: [
-        'encoder-epoch-99-avg-1.onnx',
-        'decoder-epoch-99-avg-1.onnx',
-        'joiner-epoch-99-avg-1.onnx',
-        'tokens.txt',
-      ],
-      baseUrl: 'https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-en-2023-06-26/resolve/main/',
-      isStreaming: true,
-    ),
-  ];
+  // Cache for loaded models
+  List<STTModelPackage> _cachedModels = [];
+
+  Future<List<STTModelPackage>> _loadModels() async {
+    if (_cachedModels.isNotEmpty) return _cachedModels;
+    
+    try {
+      // Future enhancement: Try fetching from a remote JSON URL first using _dio.get()
+      
+      // Fallback to bundled assets
+      final jsonString = await rootBundle.loadString('assets/models.json');
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      final modelsList = jsonData['models'] as List<dynamic>;
+      
+      _cachedModels = modelsList.map((m) {
+        return STTModelPackage(
+          id: m['id'],
+          languageCode: m['languageCode'],
+          languageName: m['languageName'],
+          name: m['name'],
+          sizeInBytes: m['sizeInBytes'],
+          fileNames: List<String>.from(m['fileNames']),
+          baseUrl: m['baseUrl'],
+          isStreaming: m['isStreaming'],
+        );
+      }).toList();
+      
+      return _cachedModels;
+    } catch (e) {
+      // Ultimate fallback if something fails
+      return [];
+    }
+  }
 
   STTModelRepositoryImpl(this._dio);
 
@@ -97,9 +71,11 @@ class STTModelRepositoryImpl implements STTModelRepository {
     try {
       final activeIdResult = await getActiveModel();
       final activeId = activeIdResult is Success<STTModelPackage?> ? activeIdResult.data?.id : 'en_moonshine_tiny';
+      
+      final models = await _loadModels();
 
       final enrichedList = <STTModelPackage>[];
-      for (final model in _predefinedModels) {
+      for (final model in models) {
         final downloaded = (await isModelDownloaded(model) as Success<bool>).data;
         enrichedList.add(model.copyWith(
           isDownloaded: downloaded,
@@ -115,10 +91,12 @@ class STTModelRepositoryImpl implements STTModelRepository {
   @override
   Future<Result<STTModelPackage?>> getActiveModel() async {
     try {
+      final models = await _loadModels();
+      final defaultModel = models.isNotEmpty ? models.first : null;
+      
       final settingsFile = await _getSettingsFile();
       if (!await settingsFile.exists()) {
-        // Return default model
-        return Success(_predefinedModels.first);
+        return Success(defaultModel);
       }
 
       final content = await settingsFile.readAsString();
@@ -126,12 +104,12 @@ class STTModelRepositoryImpl implements STTModelRepository {
       final activeId = data['active_model_id'] as String?;
 
       if (activeId == null) {
-        return Success(_predefinedModels.first);
+        return Success(defaultModel);
       }
 
-      final activeModel = _predefinedModels.firstWhere(
+      final activeModel = models.firstWhere(
         (m) => m.id == activeId,
-        orElse: () => _predefinedModels.first,
+        orElse: () => defaultModel!,
       );
 
       final isDownloadedResult = await isModelDownloaded(activeModel);
@@ -142,7 +120,8 @@ class STTModelRepositoryImpl implements STTModelRepository {
         isActive: true,
       ));
     } catch (e) {
-      return Success(_predefinedModels.first); // Fallback to default
+      final models = await _loadModels();
+      return Success(models.isNotEmpty ? models.first : null); // Fallback to default
     }
   }
 
@@ -159,65 +138,66 @@ class STTModelRepositoryImpl implements STTModelRepository {
   }
 
   @override
-  Stream<double> downloadModel(STTModelPackage package) async* {
-    final dirPath = await _getModelsDirectoryPath();
-    final packageDir = Directory(p.join(dirPath, package.id));
-    if (!await packageDir.exists()) {
-      await packageDir.create(recursive: true);
-    }
+  Stream<double> downloadModel(STTModelPackage package) {
+    final controller = StreamController<double>();
+    
+    Future<void> performDownload() async {
+      try {
+        final dirPath = await _getModelsDirectoryPath();
+        final packageDir = Directory(p.join(dirPath, package.id));
+        if (!await packageDir.exists()) {
+          await packageDir.create(recursive: true);
+        }
 
-    final totalFiles = package.fileNames.length;
-    final fileProgresses = List<double>.filled(totalFiles, 0.0);
+        final totalFiles = package.fileNames.length;
+        final fileProgresses = List<double>.filled(totalFiles, 0.0);
 
-    for (int i = 0; i < totalFiles; i++) {
-      final fileName = package.fileNames[i];
-      final fileUrl = '${package.baseUrl}$fileName';
-      final filePath = p.join(packageDir.path, fileName);
+        for (int i = 0; i < totalFiles; i++) {
+          final fileName = package.fileNames[i];
+          final fileUrl = '${package.baseUrl}$fileName';
+          final filePath = p.join(packageDir.path, fileName);
 
-      // Check if file already exists with identical size (simple cache check)
-      final localFile = File(filePath);
-      if (await localFile.exists()) {
-        // Skip download, assume completed
-        fileProgresses[i] = 1.0;
-        final totalProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
-        yield totalProgress;
-        continue;
-      }
-
-      final completer = Completer<void>();
-      double fileProgress = 0.0;
-      dynamic downloadError;
-
-      // Start download
-      await _dio.download(
-        fileUrl,
-        filePath,
-        onReceiveProgress: (received, total) {
-          if (total > 0) {
-            fileProgress = received / total;
-            fileProgresses[i] = fileProgress;
-            final overallProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
-            // Emit progress
-            completer.complete(); // just trigger event loop yield
+          final localFile = File(filePath);
+          if (await localFile.exists()) {
+            fileProgresses[i] = 1.0;
+            final totalProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
+            controller.add(totalProgress);
+            continue;
           }
-        },
-      ).then((_) {
-        fileProgresses[i] = 1.0;
-        if (!completer.isCompleted) completer.complete();
-      }).catchError((err) {
-        downloadError = err;
-        if (!completer.isCompleted) completer.complete();
-      });
 
-      await completer.future;
-
-      if (downloadError != null) {
-        throw Exception('Error descargando archivo $fileName: $downloadError');
+          await _dio.download(
+            fileUrl,
+            filePath,
+            onReceiveProgress: (received, total) {
+              if (total > 0) {
+                fileProgresses[i] = received / total;
+                final overallProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
+                controller.add(overallProgress);
+              }
+            },
+          );
+          
+          fileProgresses[i] = 1.0;
+          controller.add(fileProgresses.reduce((a, b) => a + b) / totalFiles);
+        }
+        controller.close();
+      } on DioException catch (e) {
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout || e.type == DioExceptionType.sendTimeout) {
+          controller.addError('errorTimeout');
+        } else if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.unknown) {
+          controller.addError('errorNoInternet');
+        } else {
+          controller.addError('errorDownloadFailed');
+        }
+        controller.close();
+      } catch (e) {
+        controller.addError('errorDownloadFailed');
+        controller.close();
       }
-
-      final overallProgress = fileProgresses.reduce((a, b) => a + b) / totalFiles;
-      yield overallProgress;
     }
+
+    performDownload();
+    return controller.stream;
   }
 
   @override
