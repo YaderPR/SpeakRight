@@ -7,8 +7,8 @@ abstract class STTRepository {
   /// Starts listening to audio input from the device microphone.
   Future<Result<void>> startListening();
 
-  /// Stops listening and releases the microphone.
-  Future<Result<void>> stopListening();
+  /// Stops listening and releases the microphone. Returns the final transcribed text.
+  Future<Result<String>> stopListening();
 
   /// A stream of the live transcribed text from the microphone input.
   Stream<String> get transcriptionStream;

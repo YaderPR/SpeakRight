@@ -22,11 +22,26 @@ class SpeechModelsScreen extends ConsumerWidget {
     const errorColor = Color(0xFFFF5B5C);
     const textMuted = Color(0xFF8A8A9D);
 
+    String getLocalizedError(String errorKey) {
+      switch (errorKey) {
+        case 'errorTimeout': return l10n.errorTimeout;
+        case 'errorNoInternet': return l10n.errorNoInternet;
+        case 'errorDownloadFailed': return l10n.errorDownloadFailed;
+        case 'errorDeleteFailed': return l10n.errorDeleteFailed;
+        case 'errorActiveModel': return l10n.errorActiveModel;
+        case 'errorDownloadInProgress': return l10n.errorDownloadInProgress;
+        case 'errorNeedDownloadFirst': return l10n.errorNeedDownloadFirst;
+        case 'errorSaveModel': return l10n.errorSaveModel;
+        case 'errorLoadSettings': return l10n.errorLoadSettings;
+        default: return errorKey;
+      }
+    }
+
     ref.listen(settingsViewModelProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error!),
+            content: Text(getLocalizedError(next.error!)),
             backgroundColor: errorColor,
             action: SnackBarAction(
               label: l10n.dismiss,
@@ -67,6 +82,7 @@ class SpeechModelsScreen extends ConsumerWidget {
                 final isActive = state.activeModel?.id == model.id;
                 
                 return _buildModelCard(
+                  context: context,
                   model: model,
                   isActive: isActive,
                   isDownloading: isDownloading,
@@ -86,6 +102,7 @@ class SpeechModelsScreen extends ConsumerWidget {
   }
 
   Widget _buildModelCard({
+    required BuildContext context,
     required STTModelPackage model,
     required bool isActive,
     required bool isDownloading,
@@ -183,7 +200,7 @@ class SpeechModelsScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    if (isActive)
+                    if (isActive && model.isDownloaded)
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
@@ -200,10 +217,32 @@ class SpeechModelsScreen extends ConsumerWidget {
                           backgroundColor: primaryAccent,
                         ),
                       )
-                    else if (model.isDownloaded && !isActive)
+                     else if (model.isDownloaded && !isActive)
                        IconButton(
                         icon: Icon(Icons.delete_outline, color: errorColor.withOpacity(0.8)),
-                        onPressed: () => viewModel.removeModel(model),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              backgroundColor: surfaceDark,
+                              title: Text('Eliminar Modelo', style: TextStyle(color: Colors.white)),
+                              content: Text('¿Estás seguro de que deseas eliminar ${model.name}? Tendrás que volver a descargarlo para usarlo.', style: TextStyle(color: textMuted)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  child: Text(l10n.cancel, style: TextStyle(color: textMuted)),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  child: Text('Eliminar', style: TextStyle(color: errorColor)),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true) {
+                            viewModel.removeModel(model);
+                          }
+                        },
                       ),
                   ],
                 ),

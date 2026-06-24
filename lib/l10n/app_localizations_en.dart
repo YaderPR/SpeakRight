@@ -190,4 +190,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transcription => 'Transcription';
+
+  @override
+  String get errorTimeout => 'Connection timeout. Please check your internet.';
+
+  @override
+  String get errorNoInternet => 'No internet connection.';
+
+  @override
+  String get errorDownloadFailed => 'Download failed. Please try again.';
+
+  @override
+  String get errorDeleteFailed => 'Could not delete model.';
+
+  @override
+  String get errorActiveModel => 'Cannot delete active model.';
+
+  @override
+  String get errorDownloadInProgress => 'A download is already in progress.';
+
+  @override
+  String get errorNeedDownloadFirst =>
+      'Download the model first to activate it.';
+
+  @override
+  String get errorSaveModel => 'Could not save model selection.';
+
+  @override
+  String get errorLoadSettings => 'Error loading voice settings.';
 }

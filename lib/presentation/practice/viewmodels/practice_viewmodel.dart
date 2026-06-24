@@ -46,8 +46,12 @@ class PracticeViewModel extends StateNotifier<PracticeState> {
 
     state = const PracticeProcessing();
 
-    await _sttRepository.stopListening();
+    final stopResult = await _sttRepository.stopListening();
     _sttSubscription?.cancel();
+
+    if (stopResult is Success<String> && stopResult.data.trim().isNotEmpty) {
+      finalTranscribedText = stopResult.data;
+    }
 
     // If there's no reference text, evaluate the transcribed text against itself
     final textToEvaluate = referenceText.trim().isEmpty ? finalTranscribedText : referenceText;

@@ -88,7 +88,7 @@ class FreePracticeScreen extends ConsumerWidget {
                     border: Border.all(color: borderColor),
                   ),
                   child: Center(
-                    child: _buildFeedbackContent(state, successColor, errorColor, textMuted, primaryAccent, l10n),
+                    child: _buildFeedbackContent(state, successColor, errorColor, textMuted, primaryAccent, bgDark, l10n),
                   ),
                 ),
               ),
@@ -109,6 +109,7 @@ class FreePracticeScreen extends ConsumerWidget {
     Color errorColor,
     Color textMuted,
     Color primaryAccent,
+    Color bgDark,
     AppLocalizations l10n,
   ) {
     if (state is PracticeInitial) {
@@ -166,7 +167,7 @@ class FreePracticeScreen extends ConsumerWidget {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
+          CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(primaryAccent),
             strokeWidth: 3,
           ),
@@ -187,7 +188,7 @@ class FreePracticeScreen extends ConsumerWidget {
           children: [
             Text(
               l10n.transcription,
-              style: const TextStyle(
+              style: TextStyle(
                 color: primaryAccent,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

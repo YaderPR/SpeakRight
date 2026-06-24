@@ -15,6 +15,8 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   final STTModelRepository _modelRepository;
   final AudioRecorder _audioRecorder;
 
+  static bool _isBindingsInitialized = false;
+
   final _transcriptionController = StreamController<String>.broadcast();
   StreamSubscription<Uint8List>? _recordingSubscription;
 
@@ -35,6 +37,11 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   @override
   Future<Result<void>> initialize() async {
     try {
+      if (!_isBindingsInitialized) {
+        sherpa.initBindings();
+        _isBindingsInitialized = true;
+      }
+
       final activeModelResult = await _modelRepository.getActiveModel();
       if (activeModelResult is! Success<STTModelPackage?> || activeModelResult.data == null) {
         return const Error(SpeechToTextFailure('No active model selected.'));
@@ -65,10 +72,10 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
 
       if (model.isStreaming) {
         // Zipformer streaming transducer config
-        final encoderPath = p.join(modelDir, 'encoder-epoch-99-avg-1.onnx');
-        final decoderPath = p.join(modelDir, 'decoder-epoch-99-avg-1.onnx');
-        final joinerPath = p.join(modelDir, 'joiner-epoch-99-avg-1.onnx');
-        final tokensPath = p.join(modelDir, 'tokens.txt');
+        final encoderPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('encoder')));
+        final decoderPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('decoder')));
+        final joinerPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('joiner')));
+        final tokensPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('tokens')));
 
         if (!await File(encoderPath).exists() ||
             !await File(decoderPath).exists() ||
@@ -98,14 +105,14 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
         _onlineRecognizer = sherpa.OnlineRecognizer(config);
       } else {
         // Offline recognizer setup
-        final tokensPath = p.join(modelDir, 'tokens.txt');
+        final tokensPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('tokens'), orElse: () => 'tokens.txt'));
         sherpa.OfflineModelConfig modelConfig;
 
         if (model.id.contains('moonshine')) {
-          final preprocess = p.join(modelDir, 'preprocess.onnx');
-          final encoder = p.join(modelDir, 'encode.onnx');
-          final uncachedDecoder = p.join(modelDir, 'uncached_decode.onnx');
-          final cachedDecoder = p.join(modelDir, 'cached_decode.onnx');
+          final preprocess = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('preprocess')));
+          final encoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('encode')));
+          final uncachedDecoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('uncached')));
+          final cachedDecoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('cached')));
 
           if (!await File(preprocess).exists() ||
               !await File(encoder).exists() ||
@@ -127,7 +134,7 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
             debug: false,
           );
         } else if (model.id.contains('sensevoice')) {
-          final modelPath = p.join(modelDir, 'model.int8.onnx');
+          final modelPath = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('model')));
 
           if (!await File(modelPath).exists() || !await File(tokensPath).exists()) {
             return Error(SpeechToTextFailure('Model files are missing for ${model.name}.'));
@@ -144,13 +151,12 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
             debug: false,
           );
         } else if (model.id.contains('whisper')) {
-          final encoder = p.join(modelDir, 'tiny.en-encoder.onnx');
-          final decoder = p.join(modelDir, 'tiny.en-decoder.onnx');
-          final tokens = p.join(modelDir, 'tiny.en-tokens.txt');
+          final encoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('encoder')));
+          final decoder = p.join(modelDir, model.fileNames.firstWhere((f) => f.contains('decoder')));
 
           if (!await File(encoder).exists() ||
               !await File(decoder).exists() ||
-              !await File(tokens).exists()) {
+              !await File(tokensPath).exists()) {
             return Error(SpeechToTextFailure('Model files are missing for ${model.name}.'));
           }
 
@@ -159,7 +165,7 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
               encoder: encoder,
               decoder: decoder,
             ),
-            tokens: tokens,
+            tokens: tokensPath,
             numThreads: 1,
             debug: false,
           );
@@ -193,11 +199,10 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   }
 
   Float32List _convertToFloat32(Uint8List bytes) {
-    // 16-bit PCM has 2 bytes per sample.
-    final int16Buffer = bytes.buffer.asInt16List(bytes.offsetInBytes, bytes.length ~/ 2);
-    final float32List = Float32List(int16Buffer.length);
-    for (int i = 0; i < int16Buffer.length; i++) {
-      float32List[i] = int16Buffer[i] / 32768.0;
+    final byteData = ByteData.sublistView(bytes);
+    final float32List = Float32List(bytes.length ~/ 2);
+    for (int i = 0; i < float32List.length; i++) {
+      float32List[i] = byteData.getInt16(i * 2, Endian.little) / 32768.0;
     }
     return float32List;
   }
@@ -273,7 +278,7 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
   }
 
   @override
-  Future<Result<void>> stopListening() async {
+  Future<Result<String>> stopListening() async {
     try {
       await _recordingSubscription?.cancel();
       _recordingSubscription = null;
@@ -287,6 +292,8 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
           activeModelResult.data != null &&
           activeModelResult.data!.isStreaming;
 
+      String finalTranscription = '';
+
       if (!isStreaming) {
         if (_offlineRecognizer == null) {
           return const Error(SpeechToTextFailure('OfflineRecognizer is not initialized.'));
@@ -298,17 +305,22 @@ class SherpaOnnxSttRepositoryImpl implements STTRepository {
           stream.acceptWaveform(samples: samples, sampleRate: 16000);
           _offlineRecognizer!.decode(stream);
           final result = _offlineRecognizer!.getResult(stream);
-          _transcriptionController.add(result.text);
+          finalTranscription = result.text;
+          _transcriptionController.add(finalTranscription);
           stream.free();
         }
         _offlineAudioBuffer.clear();
       } else {
         // Online stream finalization
+        if (_onlineStream != null && _onlineRecognizer != null) {
+            final result = _onlineRecognizer!.getResult(_onlineStream!);
+            finalTranscription = result.text;
+        }
         _onlineStream?.free();
         _onlineStream = null;
       }
 
-      return const Success(null);
+      return Success(finalTranscription);
     } catch (e) {
       return Error(SpeechToTextFailure('Failed to stop listening: $e'));
     }

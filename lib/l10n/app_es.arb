@@ -63,5 +63,14 @@
   "guidedPractice": "Práctica Guiada",
   "typePromptOptional": "Escribe una oración objetivo (Opcional)...",
   "noPromptHint": "O simplemente habla libremente...",
-  "transcription": "Transcripción"
+  "transcription": "Transcripción",
+  "errorTimeout": "Tiempo de espera agotado. Revisa tu internet.",
+  "errorNoInternet": "Sin conexión a internet.",
+  "errorDownloadFailed": "Error de descarga. Por favor intenta de nuevo.",
+  "errorDeleteFailed": "No se pudo eliminar el modelo.",
+  "errorActiveModel": "No puedes eliminar el modelo activo.",
+  "errorDownloadInProgress": "Ya hay una descarga en progreso.",
+  "errorNeedDownloadFirst": "Debes descargar el modelo primero para activarlo.",
+  "errorSaveModel": "No se pudo guardar la selección del modelo.",
+  "errorLoadSettings": "Error al cargar los ajustes de voz."
 }
